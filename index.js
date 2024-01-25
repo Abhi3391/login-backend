@@ -1,32 +1,28 @@
 const express = require('express');
-const axios = require('axios');
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const LoginModel = require('./controller/LoginDetails')
 
 const app = express();
-const port = 3001;
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors());
+
+mongoose.connect("mongodb://localhost:27017/backend");
 
 app.post('/login', async (req, res) => {
-  try {
-    // Collect login credentials from the request body
-    const { username, password } = req.body;
+  const { email, password } = req.body;
 
-    // Example: Send credentials to an external API using Axios
-    const apiUrl = 'https://example.com/login';
-    const response = await axios.post(apiUrl, {
-      username,
-      password,
-    });
+  const obj = {
+    email,
+  };
 
-    // Forward the response from the external API to the client
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error during login:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  const result = await LoginModel.findOne(obj);
+
+  res.status(200).send(result);
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(3002, () => {
+  console.log(`Server is running on http://localhost:3002`);
 });
